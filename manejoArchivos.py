@@ -29,10 +29,12 @@ class ManejoArchivo:
         archivoInventario = self.carpetaArchivos + "/" + nombreArchivo
 
         # Se crea el archivo
+
         f = open(archivoInventario, "w")
 
         # Se cierra el archivo
         f.close()
+
 
     # Esta función permite añadir texto al archivo,
     # se ingresa el nombre el archivo y el texto a ser escrito en el archivo,

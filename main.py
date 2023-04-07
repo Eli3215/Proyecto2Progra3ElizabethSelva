@@ -1,45 +1,55 @@
-# Se importan las librerias
-from manejoArchivos import ManejoArchivo
+import tkinter as tk
 
-# Variables
-nombreArchivo = "datos_libros.txt"
+# Definición de funciones
+
+# Función para tomar el evento cuando se presiona el botón Guardar
+# e imprimir los datos ingresados
+def ImprimirEntradas():
+    codigo = ingresoCodigo.get()
+    nombre = ingresoNombre.get()
+    categoria = ingresoCategoria.get()
+    precio = ingresoPrecio.get()
+    print(codigo, nombre, categoria, precio)
 
 # Inicio del programa
-archivo = ManejoArchivo()
 
-# Se ingresa en un bucle infinito hasta que el usuario ingrese 0
-opcion = '1'
+# Crear una nueva ventana
+ventana = tk.Tk()
 
-while opcion != '0':
+# Se establece el título de la ventana
+ventana.title("Inventario de libros")
 
-    # Se despliega el menú al usuario
-    print('Seleccione la operación que desea realizar sobre el archivo:')
-    print('1. Crear el archivo desde cero')
-    print('2. Añadir contenido al archivo ya creado')
-    print('3. Leer el contenido del archivo')
-    print('4. Eliminar el archivo')
-    print('0. Salir del sistema')
+# Se establece la geometría de la ventana
+ventana.geometry("270x150")
 
-    # Se lee la opción ingresada por el usuario
-    opcion = input('Ingrese la opción que desea realizar -> ')
+# Se crean etiquetas para cada campo
+etiquetaCodigo = tk.Label(ventana, text="Código:")
+etiquetaNombre = tk.Label(ventana, text="Nombre:")
+etiquetaCategoria = tk.Label(ventana, text="Categoría:")
+etiquetaPrecio = tk.Label(ventana, text="Precio:")
 
-    if opcion == '1':
-        archivo.CrearArchivo(nombreArchivo)
+# Se crean campos de entrada para cada característica
+ingresoCodigo = tk.Entry(ventana)
+ingresoNombre = tk.Entry(ventana)
+ingresoCategoria = tk.Entry(ventana)
+ingresoPrecio = tk.Entry(ventana)
 
-    elif opcion == '2':
+# Se usa el componente grid para colocar las etiquetas y campos de entrada de forma ordenada
+etiquetaCodigo.grid(row=0, column=0, sticky="E")
+ingresoCodigo.grid(row=0, column=1)
+etiquetaNombre.grid(row=1, column=0, sticky="E")
+ingresoNombre.grid(row=1, column=1)
+etiquetaCategoria.grid(row=2, column=0, sticky="E")
+ingresoCategoria.grid(row=2, column=1)
+etiquetaPrecio.grid(row=3, column=0, sticky="E")
+ingresoPrecio.grid(row=3, column=1)
 
-        texto = "m1,matematicas 1, matematicas, 10"
+# Crear un botón para guardar los datos del libro en el archivo
+botonGuardar = tk.Button(ventana, text="Guardar", command=ImprimirEntradas)
 
-        archivo.AnadirContenidoAlArchivo(nombreArchivo, texto)
+# Agregar el botón a la ventana
+botonGuardar.grid(row=4, column=1)
 
-    elif opcion == '3':
-        archivo.LeerArchivo(nombreArchivo)
 
-    elif opcion == '4':
-        archivo.EliminarArchivo(nombreArchivo)
-
-    elif opcion == '0':
-        print('Gracias por usar el sistema!')
-
-    else:
-        print('Error de ingreso')
+# Se inicia el bucle principal
+ventana.mainloop()
