@@ -1,16 +1,10 @@
 # Se importan las librerias
-
 import tkinter as tk
 from manejoArchivos import ManejoArchivo
-
-# Variables y constantes
-nombreArchivo = "datos_libros.txt"
-
-# Matriz para almacenar por filas los libros y por columnas las caracteristicas
-matrizLibros = []
+from categoriaLibro import FabricaLibros
 
 
-# Funciones que se activan al presionar los botones en la interfaz
+# Funciones que se llaman al presionar los botones en la interfaz
 
 # Función para leer el contenido del archivo cuando se presiona el botón botonLeerArchivo
 def LeerArchivo():
@@ -33,7 +27,6 @@ def LeerArchivo():
         # que esté separado por ; y lo almacenamos en la lista
         listaCaracteristicasLibro = libro.split(";")
 
-
         # Evaluamos si hay una lista de caracteristicas valida
         if len(listaCaracteristicasLibro) > 1:
             matrizLibros.append(listaCaracteristicasLibro)
@@ -41,6 +34,11 @@ def LeerArchivo():
     # Se imprime el contenido del archivo de texto en la pantalla como una tabla
     info_text.delete('1.0', tk.END)
 
+    # Se inserta el encabezado de la tabla en pantalla
+    info_text.insert(tk.END, "codigo | nombre | categoria | precio | cantidad |")
+    info_text.insert(tk.END, "\n")
+
+    # Se recorre la matriz de libros para mostrarla en pantalla
     for fila in matrizLibros:
         for columna in fila:
             info_text.insert(tk.END, columna)
@@ -51,15 +49,24 @@ def LeerArchivo():
 
 # Función para guardar el contenido del archivo cuando se presiona el botón botonGuardarArchivo
 def GuardarDatosLibro():
-    # Se obtienen los datos de los campos de ingreso
-    codigo = ingresoCodigo.get()
-    nombre = ingresoNombre.get()
-    categoria = ingresoCategoria.get()
-    precio = ingresoPrecio.get()
-    cantidad = ingresoCantidad.get()
+    # Llamado a la clase que fabricará los libros de ciencias o humanidades de acuerdo a lo ingresado
+    fabrica = FabricaLibros()
 
-    # Se genera el texto a ser guardado en el archivo
-    mensaje = f"{codigo};{nombre};{categoria};{precio};{cantidad}"
+    # De la interfaz primero se obtiene la categoría del libro
+    if (categoriaLibro.get() == 'LibroCiencias'):
+        libro = fabrica.CrearLibro('LibroCiencias')
+    elif (categoriaLibro.get() == 'LibroHumanidades'):
+        libro = fabrica.CrearLibro('LibroHumanidades')
+    else:
+        print('Error de ingreso')
+
+    # Se obtienen los datos de los campos de ingreso y se almacenan en el objeto
+    libro.EstablecerCodigo()
+    libro.EstablecerNombre(ingresoNombre.get())
+    libro.EstablecerPrecio(ingresoPrecio.get())
+    libro.EstablecerCantidad(ingresoCantidad.get())
+
+    mensaje = libro.RetornarCaracteristicasLibro()
 
     # Se llama la función AnadirContenidoAlArchivo para guardar la información en el archivo
     archivo.AnadirContenidoAlArchivo(mensaje)
@@ -78,6 +85,12 @@ def BorrarArchivo():
 
 
 # -----     Inicio del programa     -----#
+
+# Variables y constantes
+nombreArchivo = "datos_libros.txt"
+
+# Matriz para almacenar por filas los libros y por columnas las caracteristicas
+matrizLibros = []
 
 # Se crea un objeto de la clase ManejoArchivo para manipular el archivo
 archivo = ManejoArchivo()
@@ -98,19 +111,26 @@ ventana.geometry("670x450+20+20")
 
 # Esta etiqueta define el encabezado en la primera sección donde el administrador
 # ingresará los libros en el archivo
-etiquetaMensajeAdministrador = tk.Label(ventana, text="Espacio para el administrador")
+etiquetaMensajeAdministrador = tk.Label(ventana, text="Espacio del administrador para ingresar libros")
 
 # Se crean etiquetas para cada campo de ingreso
-etiquetaCodigo = tk.Label(ventana, text="Código:")
+
+# Esta variable permite leer la categoria del libro a ingresar
+categoriaLibro = tk.StringVar()
+
+# Se crean las etiquetas y botones de radio para seleccionar el tipo de libro a ingresar
+etiquetaCategoriaLibro1 = tk.Label(ventana, text="Categoria 1:")
+botonesRadio1 = tk.Radiobutton(ventana, text="Ciencias", variable=categoriaLibro, value='LibroCiencias')
+
+etiquetaCategoriaLibro2 = tk.Label(ventana, text="Categoria 2:")
+botonesRadio2 = tk.Radiobutton(ventana, text="Humanidades", variable=categoriaLibro, value='LibroHumanidades')
+
 etiquetaNombre = tk.Label(ventana, text="Nombre:")
-etiquetaCategoria = tk.Label(ventana, text="Categoría:")
 etiquetaPrecio = tk.Label(ventana, text="Precio:")
 etiquetaCantidad = tk.Label(ventana, text="Cantidad:")
 
 # Se crean campos de entrada para cada característica de los libros
-ingresoCodigo = tk.Entry(ventana)
 ingresoNombre = tk.Entry(ventana)
-ingresoCategoria = tk.Entry(ventana)
 ingresoPrecio = tk.Entry(ventana)
 ingresoCantidad = tk.Entry(ventana)
 
@@ -132,40 +152,40 @@ numeroFila = 0
 columnaEtiquetas = 1
 columnaEntradasTexto = 2
 
-# Pondremos este elemento en la primera fila con indice 0
+# Pondremos este elemento en la fila 1 con indice 0
 etiquetaMensajeAdministrador.grid(row=numeroFila, column=0, columnspan=4, pady=5)
 
 # Se usa el componente grid para colocar las etiquetas y campos de entrada de forma ordenada
-numeroFila = numeroFila + 1  # Pondremos estos elementos en la fila 2 con indice 1
-etiquetaCodigo.grid(row=numeroFila, column=columnaEtiquetas, sticky="E")
-ingresoCodigo.grid(row=numeroFila, column=columnaEntradasTexto)
+numeroFila = numeroFila + 1
+etiquetaCategoriaLibro1.grid(row=numeroFila, column=columnaEtiquetas, sticky="E")
+botonesRadio1.grid(row=numeroFila, column=columnaEntradasTexto, sticky="W")
 
-numeroFila = numeroFila + 1  # Pondremos estos elementos en la fila 3 con indice 2
+numeroFila = numeroFila + 1
+etiquetaCategoriaLibro2.grid(row=numeroFila, column=columnaEtiquetas, sticky="E")
+botonesRadio2.grid(row=numeroFila, column=columnaEntradasTexto, sticky="W")
+
+numeroFila = numeroFila + 1
 etiquetaNombre.grid(row=numeroFila, column=columnaEtiquetas, sticky="E")
 ingresoNombre.grid(row=numeroFila, column=columnaEntradasTexto)
 
-numeroFila = numeroFila + 1  # Pondremos estos elementos en la fila 4 con indice 3
-etiquetaCategoria.grid(row=numeroFila, column=columnaEtiquetas, sticky="E")
-ingresoCategoria.grid(row=numeroFila, column=columnaEntradasTexto)
-
-numeroFila = numeroFila + 1  # Pondremos estos elementos en la fila 5 con indice 4
+numeroFila = numeroFila + 1
 etiquetaPrecio.grid(row=numeroFila, column=columnaEtiquetas, sticky="E")
 ingresoPrecio.grid(row=numeroFila, column=columnaEntradasTexto)
 
-numeroFila = numeroFila + 1  # Pondremos estos elementos en la fila 6 con indice 5
+numeroFila = numeroFila + 1
 etiquetaCantidad.grid(row=numeroFila, column=columnaEtiquetas, sticky="E")
 ingresoCantidad.grid(row=numeroFila, column=columnaEntradasTexto)
 
-numeroFila = numeroFila + 1  # Pondremos estos elementos en la fila 7 con indice 6
+numeroFila = numeroFila + 1
 info_text.grid(row=numeroFila, column=0, columnspan=4, padx=5, pady=5)
 
-numeroFila = numeroFila + 1  # Pondremos estos elementos en la fila 8 con indice 7
+numeroFila = numeroFila + 1
 botonGuardarArchivo.grid(row=numeroFila, column=0)
 botonLeerArchivo.grid(row=numeroFila, column=1)
 botonBorrarPantalla.grid(row=numeroFila, column=2)
 botonBorrarArchivo.grid(row=numeroFila, column=3)
 
-numeroFila = numeroFila + 1  # Pondremos estos elementos en la fila 9 con indice 8
+numeroFila = numeroFila + 1
 etiquetaParaComprarLibros.grid(row=numeroFila, column=0, columnspan=4, pady=5)
 
 # Se inicia el bucle principal

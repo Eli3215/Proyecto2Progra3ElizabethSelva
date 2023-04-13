@@ -1,5 +1,4 @@
 # Se importan las librerías
-
 import os
 
 
@@ -58,7 +57,6 @@ class ManejoArchivo(metaclass=SingletonManejoArchivosMeta):
         # Se abre el archivo en formato append para añadir texto al final
         # y no empezar con el achivo en blanco cada vez que se vaya a escribir
         f = open(self.archivoInventario, "a")
-
 
         # Se escribe en el archivo el texto ingresado como parámetro
         f.write(texto)
