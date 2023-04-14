@@ -1,5 +1,4 @@
 # Importación de librerías
-
 from abc import ABC, abstractmethod
 
 

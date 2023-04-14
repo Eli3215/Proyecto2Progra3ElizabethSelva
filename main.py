@@ -1,7 +1,5 @@
 # Se importan las librerias
-
 import tkinter as tk
-
 from manejoArchivos import ManejoArchivo
 from categoriaLibro import FabricaLibros
 
@@ -10,6 +8,9 @@ nombreArchivo = "datos_libros.txt"
 
 # Variable tipo diccionario para almacenar el precio de venta actual
 usuarios = {1: 0.0}
+
+# Esta variable almacena el código del usuario actual con el que se almacenará en la variable usuarios
+claveUsuarioActual = 1
 
 # Matriz para almacenar por filas los libros y por columnas las caracteristicas
 matrizLibros = []
@@ -23,8 +24,59 @@ archivo.CrearArchivo(nombreArchivo)
 
 # Funciones que se llaman al presionar los botones en la interfaz
 
+# Esta función permite retornar un mensaje para generar las ventas totales
+# del proceso de compra en la librería
+def MensajeVentasTotales():
+    # Definición de variables que son definidas fuera de la función y que son globales
+    global usuarios
+
+    totalVendido = 0.0
+    mensaje = "Ventas Totales\n"
+    for usuario, valorFactura in usuarios.items():
+        valorFacturaConImpuesto = valorFactura + ((valorFactura * 5.0) / 100.0)
+        mensaje += f"{usuario}: {valorFacturaConImpuesto}\n"
+        totalVendido += valorFacturaConImpuesto
+
+    mensaje += f"Total: {totalVendido}"
+    return mensaje
+
+
+def ObtenerMatrizDesdeArchivo(texto):
+    # Esta variable permite tener una lista con los libros que se encuentran almacenados en el archivo
+    listaLibros = []
+
+    # Esta variable permite almacenar los libros del archivo teniendo como filas cada libro
+    # y como columnas cada caracteristica: código, nombre, categoria, precio, cantidad
+    matriz = []
+    # Como deseamos tener los datos de cada libro, primero
+    # usamos el método split para obtener los datos de cada linea del archivo
+    # y lo almacenamos en forma de lista o vector con las caracteristicas
+    listaLibros = texto.split("\n")
+
+    # Recorremos toda la lista de libros para obtener de cada uno las características
+    for libro in listaLibros:
+
+        # Usamos nuevamente el método split para buscar cada parámetro del libro
+        # que esté separado por ; y lo almacenamos en la lista
+        listaCaracteristicasLibro = libro.split(";")
+
+        # Evaluamos si hay una lista de caracteristicas valida
+        if len(listaCaracteristicasLibro) > 1:
+            matriz.append(listaCaracteristicasLibro)
+
+    return matriz
+
+
 # Función para registrar la compra del libro en la factura de venta
 def ComprarLibro():
+    # Definición de variables que son definidas fuera de la función y que son globales
+    global matrizLibros
+    global catalogoLibros
+    global textoFacturaVenta
+    global textoFacturaVentaImpuestos
+    global claveUsuarioActual
+    global textoVentasTotales
+
     # Se recuperan los libros disponibles de la matriz
     for fila in matrizLibros:
 
@@ -39,26 +91,43 @@ def ComprarLibro():
             # la factura de venta con y sin impuestos
             if codigo == codigoSelector:
                 # Se calculan los valores de la factura
-                usuarios[1] += float(precio)
-                valorImpuestos = usuarios[1] + ((usuarios[1] * 5.0) / 100.0)
+                usuarios[claveUsuarioActual] += float(precio)
+                valorImpuestos = usuarios[claveUsuarioActual] + ((usuarios[claveUsuarioActual] * 5.0) / 100.0)
 
                 # Se muestran los valores de la factura con y sin impuestos en la interfaz
-                textoFacturaVenta.config(text="Valor factura: " + str(usuarios.get(1)))
+                textoFacturaVenta.config(text="Valor factura: " + str(usuarios.get(claveUsuarioActual)))
                 textoFacturaVentaImpuestos.config(text="Valor factura con impuestos: " + str(valorImpuestos))
 
 
 # Esta función permite realizar una nueva venta poniendo la factura en 0
 def NuevaVenta():
+    # Definición de variables que son definidas fuera de la función y que son globales
+    global textoFacturaVenta
+    global textoFacturaVentaImpuestos
+    global usuarios
+    global claveUsuarioActual
+
+    # Se escriben las ventas totales realizadas por los clientes antes de ingresar uno nuevo
+    mensajeVenta = MensajeVentasTotales()
+    textoVentasTotales.config(text=mensajeVenta)
+
     # Se reinicia el valor de factura
-    usuarios[1] = 0.0
-    textoFacturaVenta.config(text="Valor factura: " + str(usuarios.get(1)))
-    textoFacturaVentaImpuestos.config(text="Valor factura: " + str(usuarios.get(1)))
+    claveUsuarioActual += 1
+    usuarios[claveUsuarioActual] = 0.0
+    textoFacturaVenta.config(text="Valor factura: " + str(usuarios.get(claveUsuarioActual)))
+    textoFacturaVentaImpuestos.config(text="Valor factura: " + str(usuarios.get(claveUsuarioActual)))
 
 
 # Función para leer el contenido del archivo cuando se presiona el botón botonLeerArchivo
 def LeerArchivo():
+    # Definición de variables que son definidas fuera de la función y que son globales
+    global matrizLibros
+    global catalogoLibros
+    global textoTablaLibros
+    global archivo
+
     # Texto leido del archivo
-    mensaje = archivo.LeerArchivo()
+    contenidoArchivo = archivo.LeerArchivo()
 
     # Se limpia el contenido de la matriz donde se almacena el contenido completo de los libros
     matrizLibros.clear()
@@ -66,22 +135,7 @@ def LeerArchivo():
     # Se limpia el selector de libros para agregar solo lo que esté disponible en la lectura del archivo
     catalogoLibros.delete(0, tk.END)
 
-    # Como deseamos tener los datos de cada libro, primero
-    # usamos el método split para obtener los datos de cada linea del archivo
-    # y lo almacenamos en forma de lista o vector con las caracteristicas
-    listaLibros = []
-    listaLibros = mensaje.split("\n")
-
-    # Recorremos toda la lista de libros para obtener de cada uno las características
-    for libro in listaLibros:
-
-        # Usamos nuevamente el método split para buscar cada parámetro del libro
-        # que esté separado por ; y lo almacenamos en la lista
-        listaCaracteristicasLibro = libro.split(";")
-
-        # Evaluamos si hay una lista de caracteristicas valida
-        if len(listaCaracteristicasLibro) > 1:
-            matrizLibros.append(listaCaracteristicasLibro)
+    matrizLibros = ObtenerMatrizDesdeArchivo(contenidoArchivo)
 
     # Se imprime el contenido del archivo de texto en la pantalla como una tabla
     textoTablaLibros.delete('1.0', tk.END)
@@ -103,6 +157,13 @@ def LeerArchivo():
 
 # Función para guardar el contenido del archivo cuando se presiona el botón botonGuardarArchivo
 def GuardarDatosLibro():
+    # Definición de variables que son definidas fuera de la función y que son globales
+    global categoriaLibro
+    global archivo
+    global ingresoNombre
+    global ingresoPrecio
+    global ingresoCantidad
+
     # Llamado a la clase que fabricará los libros de ciencias o humanidades de acuerdo a lo ingresado
     fabrica = FabricaLibros()
 
@@ -134,12 +195,18 @@ def GuardarDatosLibro():
 
 # Función para borrar la pantalla
 def BorrarPantalla():
+    # Definición de variables que son definidas fuera de la función y que son globales
+    global textoTablaLibros
+
     # Se usa la función delete para borrar el texto actual en la pantalla
     textoTablaLibros.delete('1.0', tk.END)
 
 
 # Función para eliminar el archivo cuando se presiona el botón botonBorrarArchivo
 def BorrarArchivo():
+    # Definición de variables que son definidas fuera de la función y que son globales
+    global archivo
+
     # Se usa el objeto archivo y la función EliminarArchivo para eliminar el archivo del sistema
     archivo.EliminarArchivo()
 
@@ -205,6 +272,7 @@ catalogoLibros = tk.Listbox(ventana, height=5)
 # Se crea un texto en la interfaz para mostrar el valor de la factura
 textoFacturaVenta = tk.Label(ventana, text="Valor factura:")
 textoFacturaVentaImpuestos = tk.Label(ventana, text="Valor factura con impuestos:")
+textoVentasTotales = tk.Label(ventana, text="Ventas Totales")
 
 # En esta sección ubicaremos los elementos en la interfaz de manera ordenada
 # Estas variables nos permitirán definir la fila y columna donde pondremos los elementos en la interfaz
@@ -252,6 +320,7 @@ botonBorrarPantalla.grid(row=numeroFila, column=1, sticky="W")
 botonNuevaVenta.grid(row=numeroFila, column=2)
 
 numeroFila = numeroFila + 1
+textoVentasTotales.grid(row=numeroFila, column=0)
 botonComprar.grid(row=numeroFila, column=1)
 catalogoLibros.grid(row=numeroFila, column=2, pady=10)
 
