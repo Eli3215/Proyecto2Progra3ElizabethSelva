@@ -1,4 +1,5 @@
 # Importación de librerías
+
 from abc import ABC, abstractmethod
 
 
@@ -90,6 +91,7 @@ class LibroCiencias(Libro):
     # Método para establecer el precio del libro
     # Parámetros de ingreso: Precio del libro
     # Retorna: No
+
     def EstablecerPrecio(self, precio):
         self.precio = precio
 

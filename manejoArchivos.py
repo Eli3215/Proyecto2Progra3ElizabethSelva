@@ -1,4 +1,5 @@
 # Se importan las librerías
+
 import os
 
 
@@ -70,6 +71,7 @@ class ManejoArchivo(metaclass=SingletonManejoArchivosMeta):
     # Esta función permite leer el contenido del archivo,
     # y se retorna el contenido en la variable mensaje
     def LeerArchivo(self):
+
 
         # Se verifica que no exista un error en la lectura del archivo
         try:
