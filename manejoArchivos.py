@@ -87,6 +87,7 @@ class ManejoArchivo(metaclass=SingletonManejoArchivosMeta):
 
         return mensaje
 
+
     # Esta función permite eliminar el archivo del directorio de trabajo actual,
     # no se retorna información
     def EliminarArchivo(self):

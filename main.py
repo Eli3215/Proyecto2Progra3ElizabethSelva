@@ -71,6 +71,19 @@ def ObtenerMatrizDesdeArchivo(texto):
     return matriz
 
 
+# Esta función permite retornar un mensaje que actualizará todos los registros de libros en el archivo
+# a partir de la matriz ingresada a la función
+def ObtenerMensajeDesdeMatriz(matriz):
+    # Variable que contendrá el mensaje a ser retornado
+    mensaje = ""
+
+    for fila in matriz:
+        (codigo, nombre, categora, precio, cantidad) = fila
+        mensaje += f"{codigo};{nombre};{categora};{precio};{cantidad}\n"
+
+    return mensaje
+
+
 # Función para registrar la compra del libro en la factura de venta
 def ComprarLibro():
     # Definición de variables que son definidas fuera de la función y que son globales
@@ -80,6 +93,9 @@ def ComprarLibro():
     global textoFacturaVentaImpuestos
     global claveUsuarioActual
     global textoVentasTotales
+
+    # Esta variable almacena la matriz modificada en el ciclo para luego actualizar la matriz original
+    matrizTemporal = []
 
     # Se recuperan los libros disponibles de la matriz
     for fila in matrizLibros:
@@ -96,9 +112,16 @@ def ComprarLibro():
             codigoSelector = codigoSelector.split(":")  # Obtenemos aqui una lista de la forma [1, quimica]
             codigoSelector = codigoSelector[0]  # Tomamos solo el primer elemento con índice 0
 
+            # Se transforma la variable cantidad a int para comparar si hay libros disponibles
+            cantidadLibros = int(cantidad)
+
             # Luego se compara si el código coincide con alguno de los libros leidos desde el archivo para calcular
             # la factura de venta con y sin impuestos
             if codigo == codigoSelector:
+
+                # Se disminuye en 1 la cantidad de libros disponibles
+                cantidadLibros = cantidadLibros - 1
+
                 # Se calculan los valores de la factura
                 usuarios[claveUsuarioActual] += float(precio)
                 valorImpuestos = usuarios[claveUsuarioActual] + ((usuarios[claveUsuarioActual] * 5.0) / 100.0)
@@ -107,9 +130,37 @@ def ComprarLibro():
                 textoFacturaVenta.config(text="Valor factura: " + str(usuarios.get(claveUsuarioActual)))
                 textoFacturaVentaImpuestos.config(text="Valor factura con impuestos: " + str(valorImpuestos))
 
+                # Se verifica si hay libros disponibles para actualizar la matriz de libros, pero
+                # si no hay se omiten para no guardar libros que no tengan disponibilidad
+                if cantidadLibros > 0:
+                    # Se actualiza la cantidad de libros para pasarlo a la matriz temporal
+                    matrizTemporal.append([codigo, nombre, categorai, precio, cantidadLibros])
+
+            else:
+                matrizTemporal.append(fila)
+        else:
+            matrizTemporal = matrizLibros.copy()
+
+        # Se copia la matriz temporal a la matriz principal para actualizar los registros
+        matrizLibros = matrizTemporal.copy()
+
+    # Se obtiene el mensaje para actualizar el archivo
+    mensaje = ObtenerMensajeDesdeMatriz(matrizLibros)
+
+    # Se borra el archivo para generarlo de nuevo ya que es más sencillo pasar
+    # toda la información de la matriz que actualizar manualmente la posición dentro del
+    # archivo
+    archivo.EliminarArchivo()
+
+    # Se llama la función AnadirContenidoAlArchivo para guardar la información en el archivo
+    archivo.AnadirContenidoAlArchivo(mensaje)
+
+    # Se llama la función para mostrar la cantidad de libros actualizada en la interfaz
+    LeerArchivo()
+
 
 # Esta función permite realizar una nueva venta poniendo la factura en 0
-def NuevaVenta():
+def FinalizarVenta():
     # Definición de variables que son definidas fuera de la función y que son globales
     global textoFacturaVenta
     global textoFacturaVentaImpuestos
@@ -120,11 +171,12 @@ def NuevaVenta():
     mensajeVenta = MensajeVentasTotales()
     textoVentasTotales.config(text=mensajeVenta)
 
-    # Se reinicia el valor de factura
-    claveUsuarioActual += 1
-    usuarios[claveUsuarioActual] = 0.0
-    textoFacturaVenta.config(text="Valor factura: " + str(usuarios.get(claveUsuarioActual)))
-    textoFacturaVentaImpuestos.config(text="Valor factura: " + str(usuarios.get(claveUsuarioActual)))
+    # Se pasa a otro usuario solo si el valor de venta es > 0.0
+    if usuarios[claveUsuarioActual] > 0.0:
+        claveUsuarioActual += 1
+        usuarios[claveUsuarioActual] = 0.0
+        textoFacturaVenta.config(text="Valor factura: " + str(usuarios.get(claveUsuarioActual)))
+        textoFacturaVentaImpuestos.config(text="Valor factura: " + str(usuarios.get(claveUsuarioActual)))
 
 
 # Función para leer el contenido del archivo cuando se presiona el botón botonLeerArchivo
@@ -258,6 +310,9 @@ def BorrarArchivo():
     # Se usa el objeto archivo y la función EliminarArchivo para eliminar el archivo del sistema
     archivo.EliminarArchivo()
 
+    # Se lee el archivo para actualizar la pantalla
+    LeerArchivo()
+
 
 # -----     Inicio del programa     -----#
 
@@ -301,6 +356,7 @@ ingresoCantidad = tk.Entry(ventana)
 
 # Se crea un texto en la interfaz para mostrar la información del archivo
 textoTablaLibros = tk.Text(ventana, height=5)
+textoTablaLibros.insert(tk.END, "codigo | nombre | categoria | precio | cantidad |")
 
 # Creación de botones para las diferentes operaciones
 botonGuardarArchivo = tk.Button(ventana, text="Guardar Datos", command=GuardarDatosLibro)
@@ -308,7 +364,7 @@ botonLeerArchivo = tk.Button(ventana, text="Leer Archivo", command=LeerArchivo)
 botonBorrarArchivo = tk.Button(ventana, text="Eliminar Archivo", command=BorrarArchivo)
 botonBorrarPantalla = tk.Button(ventana, text="Borrar Pantalla", command=BorrarPantalla)
 botonComprar = tk.Button(ventana, text="Comprar Libro", command=ComprarLibro)
-botonNuevaVenta = tk.Button(ventana, text="Nueva Venta", command=NuevaVenta)
+botonFinalizarVenta = tk.Button(ventana, text="Finalizar Venta", command=FinalizarVenta)
 
 # Se agrega una etiqueta para definir la compra de libros por parte del cliente
 etiquetaParaComprarLibros = tk.Label(ventana,
@@ -365,7 +421,7 @@ textoTablaLibros.grid(row=numeroFila, column=0, columnspan=4, padx=5, pady=5)
 numeroFila = numeroFila + 1
 botonLeerArchivo.grid(row=numeroFila, column=0, sticky="E")
 botonBorrarPantalla.grid(row=numeroFila, column=1, sticky="W")
-botonNuevaVenta.grid(row=numeroFila, column=2)
+botonFinalizarVenta.grid(row=numeroFila, column=2)
 
 numeroFila = numeroFila + 1
 textoVentasTotales.grid(row=numeroFila, column=0)
@@ -377,6 +433,9 @@ textoFacturaVenta.grid(row=numeroFila, column=2)
 
 numeroFila = numeroFila + 1
 textoFacturaVentaImpuestos.grid(row=numeroFila, column=2)
+
+# Leer archivo para cargar pantalla con los datos iniciales
+LeerArchivo()
 
 # Se inicia el bucle principal de la interfaz
 ventana.mainloop()
