@@ -71,7 +71,6 @@ class ManejoArchivo(metaclass=SingletonManejoArchivosMeta):
     # y se retorna el contenido en la variable mensaje
     def LeerArchivo(self):
 
-
         # Se verifica que no exista un error en la lectura del archivo
         try:
 

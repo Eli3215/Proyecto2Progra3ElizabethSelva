@@ -30,7 +30,10 @@ def MensajeVentasTotales():
     # Definición de variables que son definidas fuera de la función y que son globales
     global usuarios
 
+    # Variable float para calcular el valor total de libros vendidos
     totalVendido = 0.0
+
+    # Se genera el mensaje a mostrar en la etiqueta
     mensaje = "Ventas Totales\n"
     for usuario, valorFactura in usuarios.items():
         valorFacturaConImpuesto = valorFactura + ((valorFactura * 5.0) / 100.0)
@@ -48,6 +51,7 @@ def ObtenerMatrizDesdeArchivo(texto):
     # Esta variable permite almacenar los libros del archivo teniendo como filas cada libro
     # y como columnas cada caracteristica: código, nombre, categoria, precio, cantidad
     matriz = []
+
     # Como deseamos tener los datos de cada libro, primero
     # usamos el método split para obtener los datos de cada linea del archivo
     # y lo almacenamos en forma de lista o vector con las caracteristicas
@@ -86,6 +90,11 @@ def ComprarLibro():
         # Se comprueba primero si el usuario seleccionó un elemento de la lista para evitar errores
         if len(catalogoLibros.curselection()) > 0:
             codigoSelector = catalogoLibros.get(catalogoLibros.curselection())
+
+            # Debido a que se devuelve un texto en la forma 1:quimica, se debe separar el texto y tomar solo el código
+            # y para hacer eso usamos las siguientes instrucciones
+            codigoSelector = codigoSelector.split(":")  # Obtenemos aqui una lista de la forma [1, quimica]
+            codigoSelector = codigoSelector[0]  # Tomamos solo el primer elemento con índice 0
 
             # Luego se compara si el código coincide con alguno de los libros leidos desde el archivo para calcular
             # la factura de venta con y sin impuestos
@@ -146,7 +155,10 @@ def LeerArchivo():
 
     # Se recorre la matriz de libros para mostrarla en pantalla
     for cont, fila in enumerate(matrizLibros):
-        catalogoLibros.insert(cont + 1, fila[0])
+        # Se genera una tupla para obtener cada caracterista de la fila
+        (codigo, nombre, categorai, precio, cantidad) = fila
+
+        catalogoLibros.insert(cont + 1, f"{codigo}:{nombre}")
         for columna in fila:
             textoTablaLibros.insert(tk.END, columna)
             textoTablaLibros.insert(tk.END, " | ")
@@ -163,6 +175,7 @@ def GuardarDatosLibro():
     global ingresoNombre
     global ingresoPrecio
     global ingresoCantidad
+    global matrizLibros
 
     # Llamado a la clase que fabricará los libros de ciencias o humanidades de acuerdo a lo ingresado
     fabrica = FabricaLibros()
@@ -175,8 +188,40 @@ def GuardarDatosLibro():
     else:
         print('Error de ingreso')
 
+    # Se llama a la función LeerArchivo para actualizar la variable matrizLibros
+    LeerArchivo()
+
+    # Se crean estos vectores para evitar repetir codigos de las categorias existentes
+    listaCodigos = [1]
+
+    for fila in matrizLibros:
+        # Se genera una tupla para obtener cada caracterista de la fila
+        (codigo, nombre, categorai, precio, cantidad) = fila
+
+        # Se convierte el código a int porque se lee como un str
+        codigo = int(codigo)
+
+        # Esta variable booleana permite definir si ya existe el codigo en la lista
+        yaExisteElCodigo = False
+        codigoMasAlto = 1
+
+        for codigoLista in listaCodigos:
+
+            # Se realiza la comparación para verificar si ya existe el código en la lista
+            if codigo == codigoLista:
+                yaExisteElCodigo = True
+                codigoMasAlto = codigo
+
+                # Se suma 1 al código más alto encontrado en la lista para evitar repetir
+        if yaExisteElCodigo == True:
+            listaCodigos.append(codigoMasAlto + 1)
+
+    # En esta parte se selecciona el último código de la lista ya que esta se encuentra ordenada
+    # y el último es el más actualizado para evitar repetir
+    codigo = listaCodigos[-1]
+
     # Se obtienen los datos de los campos de ingreso y se almacenan en el objeto
-    libro.EstablecerCodigo()
+    libro.EstablecerCodigo(codigo)
     libro.EstablecerNombre(ingresoNombre.get())
     libro.EstablecerPrecio(ingresoPrecio.get())
     libro.EstablecerCantidad(ingresoCantidad.get())
@@ -191,6 +236,9 @@ def GuardarDatosLibro():
     ingresoNombre.delete(0, tk.END)
     ingresoPrecio.delete(0, tk.END)
     ingresoCantidad.delete(0, tk.END)
+
+    # Se llama a la función LeerArchivo para actualizar la variable matrizLibros
+    LeerArchivo()
 
 
 # Función para borrar la pantalla

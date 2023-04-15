@@ -6,10 +6,10 @@ from abc import ABC, abstractmethod
 class Libro(ABC):
 
     # Método para establecer el código del libro
-    # Parámetros de ingreso: No
+    # Parámetros de ingreso: Código del libro
     # Retorna: No
     @abstractmethod
-    def EstablecerCodigo(self):
+    def EstablecerCodigo(self, codigo):
         pass
 
     # Método para establecer el nombre del libro
@@ -71,15 +71,12 @@ class Libro(ABC):
 
 # Se implementan los métodos abstractos de la padre en la clase LibroCiencias
 class LibroCiencias(Libro):
-    # Variable de clase para establecer el código del libro
-    codigo = 0
 
     # Método para establecer el código del libro
-    # Parámetros de ingreso: No
+    # Parámetros de ingreso: Código del libro
     # Retorna: No
-    def EstablecerCodigo(self):
-        LibroCiencias.codigo = LibroCiencias.codigo + 1
-        self.codigo = "c" + str(LibroCiencias.codigo)
+    def EstablecerCodigo(self, codigo):
+        self.codigo = codigo
 
     # Método para establecer el nombre del libro
     # Parámetros de ingreso: nombre del libro
@@ -90,7 +87,6 @@ class LibroCiencias(Libro):
     # Método para establecer el precio del libro
     # Parámetros de ingreso: Precio del libro
     # Retorna: No
-
     def EstablecerPrecio(self, precio):
         self.precio = precio
 
@@ -134,15 +130,12 @@ class LibroCiencias(Libro):
 
 # Se implementan los métodos abstractos de la interfaz libro en la clase LibroHumanidades
 class LibroHumanidades(Libro):
-    # Variable de clase para establecer el código del libro
-    codigo = 0
 
     # Método para establecer el código del libro
-    # Parámetros de ingreso: No
+    # Parámetros de ingreso: Código del libro
     # Retorna: No
-    def EstablecerCodigo(self):
-        LibroHumanidades.codigo = LibroHumanidades.codigo + 1
-        self.codigo = "h" + str(LibroHumanidades.codigo)
+    def EstablecerCodigo(self, codigo):
+        self.codigo = codigo
 
     # Método para establecer el nombre del libro
     # Parámetros de ingreso: nombre del libro
