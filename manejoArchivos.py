@@ -67,6 +67,7 @@ class ManejoArchivo(metaclass=SingletonManejoArchivosMeta):
         # Se cierra el archivo
         f.close()
 
+
     # Esta función permite leer el contenido del archivo,
     # y se retorna el contenido en la variable mensaje
     def LeerArchivo(self):

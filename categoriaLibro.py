@@ -182,6 +182,7 @@ class LibroHumanidades(Libro):
     # Método para retornar un mensaje con las caracteristicas del libro
     # Parámetros de ingreso: No
     # Retorna: Un mensaje con las caracteristicas del libro
+
     def RetornarCaracteristicasLibro(self):
         mensaje = f"{self.codigo};{self.nombre};'Humanidades';{self.precio};{self.cantidad}"
         return mensaje

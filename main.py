@@ -24,6 +24,45 @@ archivo.CrearArchivo(nombreArchivo)
 
 # Funciones que se llaman al presionar los botones en la interfaz
 
+# Esta función permite encontrar el código más alto a partir de la matriz de libros ingresada
+def BuscarCodigoMasAlto(matrizLibros):
+    # Se crea el vector de códigos para evitar repetirlos
+    listaCodigos = []
+
+    for fila in matrizLibros:
+        # Se genera una tupla para obtener cada caracterista de la fila
+        (codigo, nombre, categoria, precio, cantidad) = fila
+
+        # Se convierte el código a int porque se lee como un str
+        codigo = int(codigo)
+
+        # Esta variable booleana permite definir si ya existe el codigo en la lista
+        yaExisteElCodigo = False
+        codigoMasAlto = 0
+        listaCodigos.append(codigo)
+
+        for codigoLista in listaCodigos:
+
+            # Se realiza la comparación para verificar si ya existe el código en la lista
+            # y se busca el código más alto
+            if codigo == codigoLista and codigo >= codigoLista:
+                yaExisteElCodigo = True
+                codigoMasAlto = codigo
+
+                # Se suma 1 al código más alto encontrado en la lista para evitar repetir
+        if yaExisteElCodigo == True:
+            listaCodigos.append(codigoMasAlto + 1)
+
+    # En esta parte se selecciona el último código de la lista ya que esta se encuentra ordenada
+    # y el último es el más alto
+    if len(listaCodigos) > 0:
+        codigo = listaCodigos[-1]
+    else:
+        codigo = 1
+
+    return codigo
+
+
 # Esta función permite retornar un mensaje para generar las ventas totales
 # del proceso de compra en la librería
 def MensajeVentasTotales():
@@ -206,11 +245,13 @@ def LeerArchivo():
     textoTablaLibros.insert(tk.END, "\n")
 
     # Se recorre la matriz de libros para mostrarla en pantalla
-    for cont, fila in enumerate(matrizLibros):
+    cont = 0
+    for fila in matrizLibros:
+        cont += 1
         # Se genera una tupla para obtener cada caracterista de la fila
         (codigo, nombre, categorai, precio, cantidad) = fila
 
-        catalogoLibros.insert(cont + 1, f"{codigo}:{nombre}")
+        catalogoLibros.insert(cont, f"{codigo}:{nombre}")
         for columna in fila:
             textoTablaLibros.insert(tk.END, columna)
             textoTablaLibros.insert(tk.END, " | ")
@@ -243,34 +284,9 @@ def GuardarDatosLibro():
     # Se llama a la función LeerArchivo para actualizar la variable matrizLibros
     LeerArchivo()
 
-    # Se crean estos vectores para evitar repetir codigos de las categorias existentes
-    listaCodigos = [1]
-
-    for fila in matrizLibros:
-        # Se genera una tupla para obtener cada caracterista de la fila
-        (codigo, nombre, categorai, precio, cantidad) = fila
-
-        # Se convierte el código a int porque se lee como un str
-        codigo = int(codigo)
-
-        # Esta variable booleana permite definir si ya existe el codigo en la lista
-        yaExisteElCodigo = False
-        codigoMasAlto = 1
-
-        for codigoLista in listaCodigos:
-
-            # Se realiza la comparación para verificar si ya existe el código en la lista
-            if codigo == codigoLista:
-                yaExisteElCodigo = True
-                codigoMasAlto = codigo
-
-                # Se suma 1 al código más alto encontrado en la lista para evitar repetir
-        if yaExisteElCodigo == True:
-            listaCodigos.append(codigoMasAlto + 1)
-
-    # En esta parte se selecciona el último código de la lista ya que esta se encuentra ordenada
-    # y el último es el más actualizado para evitar repetir
-    codigo = listaCodigos[-1]
+    # Se llama a la función BuscarCodigoMasAlto para encontrar el código siguiente en el ingreso
+    # y evitar repetir
+    codigo = BuscarCodigoMasAlto(matrizLibros)
 
     # Se obtienen los datos de los campos de ingreso y se almacenan en el objeto
     libro.EstablecerCodigo(codigo)
@@ -364,7 +380,7 @@ botonLeerArchivo = tk.Button(ventana, text="Leer Archivo", command=LeerArchivo)
 botonBorrarArchivo = tk.Button(ventana, text="Eliminar Archivo", command=BorrarArchivo)
 botonBorrarPantalla = tk.Button(ventana, text="Borrar Pantalla", command=BorrarPantalla)
 botonComprar = tk.Button(ventana, text="Comprar Libro", command=ComprarLibro)
-botonFinalizarVenta = tk.Button(ventana, text="Finalizar Venta", command=FinalizarVenta)
+botonFinalizarVenta = tk.Button(ventana, text="Finalizar Venta Actual", command=FinalizarVenta)
 
 # Se agrega una etiqueta para definir la compra de libros por parte del cliente
 etiquetaParaComprarLibros = tk.Label(ventana,
