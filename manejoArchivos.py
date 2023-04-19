@@ -82,6 +82,7 @@ class ManejoArchivo(metaclass=SingletonManejoArchivosMeta):
 
             # Se cierra el archivo
             f.close()
+
         except:
             mensaje = "Error de lectura del archivo"
 

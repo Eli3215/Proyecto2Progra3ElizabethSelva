@@ -3,7 +3,8 @@ import tkinter as tk
 from manejoArchivos import ManejoArchivo
 from categoriaLibro import FabricaLibros
 from funciones import GenerarElementosGuardarLibro, BuscarCodigoMasAlto, MensajeVentasTotales, \
-    ObtenerMatrizDesdeArchivo, ObtenerMensajeDesdeMatriz, GenerarElementosLeerLibros, GenerarElementosComprarLibros
+    ObtenerMatrizDesdeArchivo, ObtenerMensajeDesdeMatriz, GenerarElementosLeerLibros, GenerarElementosComprarLibros, \
+    GenerarElementosMostrarVentasTotales
 
 # Variables y constantes usadas en el programa
 nombreArchivo = "datos_libros.txt"
@@ -53,16 +54,39 @@ def ActualizarCatalogoParaCompra():
         catalogoLibros.insert(cont, f"{codigo}:{nombre}:{cantidad}")
 
 
+# Esta función permite visualizar las ventas totales realizadas
+def MostrarInterfazVentasTotales():
+    # Definición de variables que son definidas fuera de la función y que son globales
+    global contenedorGuardarLibros
+    global contenedorMostrarLibros
+    global contenedorComprarLibros
+    global contenedorVentasTotales
+    global textoVentasTotales
+    global usuarios
+
+    # Se muestra el contenedor respectivo y se oculta el resto
+    contenedorMostrarLibros.pack_forget()
+    contenedorComprarLibros.pack_forget()
+    contenedorVentasTotales.pack()
+    contenedorGuardarLibros.pack_forget()
+
+    # Se escriben las ventas totales de todos los usuarios
+    mensajeVenta = MensajeVentasTotales(usuarios)
+    textoVentasTotales.config(text=mensajeVenta)
+
+
 # Esta función permite mostrar solo el contenedor donde están todos los elementos para guardar libros en el inventario
 def MostrarInterfazGuardar():
     # Definición de variables que son definidas fuera de la función y que son globales
     global contenedorGuardarLibros
     global contenedorMostrarLibros
     global contenedorComprarLibros
+    global contenedorVentasTotales
 
     # Se muestra el contenedor respectivo y se oculta el resto
     contenedorMostrarLibros.pack_forget()
     contenedorComprarLibros.pack_forget()
+    contenedorVentasTotales.pack_forget()
     contenedorGuardarLibros.pack()
 
 
@@ -72,10 +96,12 @@ def MostrarInterfazComprar():
     global contenedorGuardarLibros
     global contenedorMostrarLibros
     global contenedorComprarLibros
+    global contenedorVentasTotales
 
     # Se muestra el contenedor respectivo y se oculta el resto
     contenedorMostrarLibros.pack_forget()
     contenedorGuardarLibros.pack_forget()
+    contenedorVentasTotales.pack_forget()
     contenedorComprarLibros.pack()
 
     ActualizarCatalogoParaCompra()
@@ -138,11 +164,13 @@ def BorrarArchivo():
     global contenedorGuardarLibros
     global contenedorMostrarLibros
     global contenedorComprarLibros
+    global contenedorVentasTotales
 
     # Se muestra el contenedor respectivo y se oculta el resto
     contenedorMostrarLibros.pack_forget()
     contenedorGuardarLibros.pack_forget()
     contenedorComprarLibros.pack_forget()
+    contenedorVentasTotales.pack_forget()
 
     # Se usa el objeto archivo y la función EliminarArchivo para eliminar el archivo del sistema
     archivo.EliminarArchivo()
@@ -157,11 +185,13 @@ def LeerArchivo():
     global contenedorGuardarLibros
     global contenedorMostrarLibros
     global contenedorComprarLibros
+    global contenedorVentasTotales
 
     # Se muestra el contenedor respectivo y se oculta el resto
     contenedorMostrarLibros.pack()
     contenedorGuardarLibros.pack_forget()
     contenedorComprarLibros.pack_forget()
+    contenedorVentasTotales.pack_forget()
 
     # Texto leido del archivo
     contenidoArchivo = archivo.LeerArchivo()
@@ -197,7 +227,7 @@ def ComprarLibro():
     global textoFacturaVenta
     global textoFacturaVentaImpuestos
     global claveUsuarioActual
-    global textoVentasTotales
+    global usuarios
 
     # Esta variable almacena la matriz modificada en el ciclo para luego actualizar la matriz original
     matrizTemporal = []
@@ -272,10 +302,6 @@ def FinalizarVenta():
     global usuarios
     global claveUsuarioActual
 
-    # Se escriben las ventas totales realizadas por los clientes antes de ingresar uno nuevo
-    mensajeVenta = MensajeVentasTotales(usuarios)
-    textoVentasTotales.config(text=mensajeVenta)
-
     # Se pasa a otro usuario solo si el valor de venta es > 0.0
     if usuarios[claveUsuarioActual] > 0.0:
         claveUsuarioActual += 1
@@ -321,26 +347,38 @@ botonGuardarArchivo.config(command=GuardarDatosLibro)
 
 # Se generan los elementos en la interfaz con la función GenerarElementosComprarLibros para el proceso de compra
 #  y se retornan los elementos creados en una tupla para ser usados posteriormente en el programa
-(contenedorComprarLibros, catalogoLibros, textoFacturaVenta, textoFacturaVentaImpuestos, textoVentasTotales,
- botonComprar, botonFinalizarVenta) = GenerarElementosComprarLibros(ventana)
+(contenedorComprarLibros, catalogoLibros, textoFacturaVenta, textoFacturaVentaImpuestos, botonComprar,
+ botonFinalizarVenta) = GenerarElementosComprarLibros(ventana)
 
 # Se configuran las funciones a ser llamadas al presionar los botones
 botonComprar.config(command=ComprarLibro)
 botonFinalizarVenta.config(command=FinalizarVenta)
+
+# Se generan los elementos en la interfaz con la función GenerarElementosMostrarVentasTotales para el proceso de compras
+#  y se retornan los elementos creados en una tupla para ser usados posteriormente en el programa
+(contenedorVentasTotales, textoVentasTotales) = GenerarElementosMostrarVentasTotales(ventana)
 
 # Creación de botones para realizar acciones sobre la interfaz
 botonMostrarProcesoGuardar = tk.Button(contenedorBotonesMenu, text="Guardar Libros Inventario",
                                        command=MostrarInterfazGuardar)
 botonMostrarProcesoLeer = tk.Button(contenedorBotonesMenu, text="Mostrar Libros Inventario", command=LeerArchivo)
 botonMostrarProcesoComprar = tk.Button(contenedorBotonesMenu, text="Comprar Libros", command=MostrarInterfazComprar)
+botonComprasTotales = tk.Button(contenedorBotonesMenu, text="Mostrar Ventas Totales",
+                                command=MostrarInterfazVentasTotales)
 botonBorrarArchivo = tk.Button(contenedorBotonesMenu, text="Eliminar Archivo", command=BorrarArchivo)
 botonSalir = tk.Button(contenedorBotonesMenu, text="Salir de la Aplicación", command=ventana.destroy)
 
 # Se organizan los botones en la interfaz
 botonMostrarProcesoGuardar.pack()
+
 botonMostrarProcesoLeer.pack()
+
 botonMostrarProcesoComprar.pack()
+
+botonComprasTotales.pack()
+
 botonBorrarArchivo.pack()
+
 botonSalir.pack()
 
 # Se inicia el bucle principal de la interfaz

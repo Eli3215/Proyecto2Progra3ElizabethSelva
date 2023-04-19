@@ -15,6 +15,7 @@ def BuscarCodigoMasAlto(matrizLibros):
 
         # Esta variable booleana permite definir si ya existe el codigo en la lista
         yaExisteElCodigo = False
+
         codigoMasAlto = 0
         listaCodigos.append(codigo)
 
@@ -204,7 +205,6 @@ def GenerarElementosComprarLibros(ventana):
     # Se crea un texto en la interfaz para mostrar el valor de la factura
     textoFacturaVenta = tk.Label(contenedorElementos, text="Valor factura:")
     textoFacturaVentaImpuestos = tk.Label(contenedorElementos, text="Valor factura con impuestos:")
-    textoVentasTotales = tk.Label(contenedorElementos, text="Ventas Totales")
 
     botonComprar = tk.Button(contenedorElementos, text="Comprar Libro")
     botonFinalizarVenta = tk.Button(contenedorElementos, text="Finalizar Venta Actual")
@@ -215,7 +215,6 @@ def GenerarElementosComprarLibros(ventana):
     etiquetaParaComprarLibros.grid(row=numeroFila, column=0, columnspan=4, pady=5)
 
     numeroFila = numeroFila + 1
-    textoVentasTotales.grid(row=numeroFila, column=0)
     botonComprar.grid(row=numeroFila, column=1)
     catalogoLibros.grid(row=numeroFila, column=2, pady=10)
 
@@ -227,5 +226,18 @@ def GenerarElementosComprarLibros(ventana):
 
     botonFinalizarVenta.grid(row=numeroFila, column=2)
 
-    return (contenedorElementos, catalogoLibros, textoFacturaVenta, textoFacturaVentaImpuestos, textoVentasTotales,
-            botonComprar, botonFinalizarVenta)
+    return (contenedorElementos, catalogoLibros, textoFacturaVenta, textoFacturaVentaImpuestos, botonComprar,
+            botonFinalizarVenta)
+
+
+# Esta función permite crear los elementos necesarios para mostrar las ventas totales,
+# se recibe la ventana principal y se retorna una tupla con los elementos a ser usados en el programa principal
+def GenerarElementosMostrarVentasTotales(ventana):
+    # Creación de contenedor que tendrá los elementos necesarios para mostrar las ventas totales
+    contenedorElementos = tk.Frame(ventana)
+
+    textoVentasTotales = tk.Label(contenedorElementos, text="Ventas Totales")
+
+    textoVentasTotales.grid(row=0, column=0)
+
+    return (contenedorElementos, textoVentasTotales)

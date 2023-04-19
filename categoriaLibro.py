@@ -190,10 +190,12 @@ class LibroHumanidades(Libro):
 # Esta clase FabricaLibros declara el método factory (CrearLibro) que retornará un objeto ya sea de la clase LibroCiencias o LibroHumanidades
 class FabricaLibros:
 
+
     # Este método permite returnar un objeto ya sea de la clase LibroCiencias o de la clase LibroHumanidades
     # Parámetros de ingreso: Tipo de libro a ser generado ('LibroCiencias' o 'LibroHumanidades')
     # Retorna: Instancia de la clase LibroCiencias() o de la clase LibroHumanidades()
     def CrearLibro(self, tipo):
+
         if tipo == 'LibroCiencias':
             return LibroCiencias()
         elif tipo == 'LibroHumanidades':
