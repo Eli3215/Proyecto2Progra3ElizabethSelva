@@ -182,7 +182,6 @@ class LibroHumanidades(Libro):
     # Método para retornar un mensaje con las caracteristicas del libro
     # Parámetros de ingreso: No
     # Retorna: Un mensaje con las caracteristicas del libro
-
     def RetornarCaracteristicasLibro(self):
         mensaje = f"{self.codigo};{self.nombre};'Humanidades';{self.precio};{self.cantidad}"
         return mensaje
@@ -190,7 +189,6 @@ class LibroHumanidades(Libro):
 
 # Esta clase FabricaLibros declara el método factory (CrearLibro) que retornará un objeto ya sea de la clase LibroCiencias o LibroHumanidades
 class FabricaLibros:
-
 
     # Este método permite returnar un objeto ya sea de la clase LibroCiencias o de la clase LibroHumanidades
     # Parámetros de ingreso: Tipo de libro a ser generado ('LibroCiencias' o 'LibroHumanidades')
