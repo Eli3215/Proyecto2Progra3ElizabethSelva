@@ -6,20 +6,20 @@ from funciones import GenerarElementosGuardarLibro, BuscarCodigoMasAlto, Mensaje
     ObtenerMatrizDesdeArchivo, ObtenerMensajeDesdeMatriz, GenerarElementosLeerLibros, GenerarElementosComprarLibros, \
     GenerarElementosMostrarVentasTotales
 
-# Variables y constantes usadas en el programa
-nombreArchivo = "datos_libros.txt"
-
-# Variable tipo diccionario para almacenar el precio de venta actual
+# Variable tipo diccionario para almacenar numero de usuario como clave y compra total como valor tipo float
 usuarios = {1: 0.0}
 
-# Esta variable almacena el código del usuario actual con el que se almacenará en la variable usuarios
+# Esta variable almacena el código del usuario actual con el que se almacenará en el diccionario de usuarios
 claveUsuarioActual = 1
 
-# Matriz para almacenar por filas los libros y por columnas las caracteristicas
+# Matriz para almacenar por filas los libros y por columnas las caracteristicas de los libros
 matrizLibros = []
 
 # Se crea un objeto de la clase ManejoArchivo para manipular el archivo
 archivo = ManejoArchivo()
+
+# Nombre del archivo
+nombreArchivo = "datos_libros.txt"
 
 # Se crea el archivo donde se guardarán los datos de la librería usando la función CrearArchivo del objeto archivo
 archivo.CrearArchivo(nombreArchivo)
@@ -29,6 +29,7 @@ archivo.CrearArchivo(nombreArchivo)
 
 # Esta función permite actualizar el catálogo para compras en la interfaz
 def ActualizarCatalogoParaCompra():
+    # Definición de variables que son definidas fuera de la función y que son globales
     global catalogoLibros
     global archivo
     global matrizLibros
@@ -46,12 +47,17 @@ def ActualizarCatalogoParaCompra():
     # la matrizLibros que contiene todas las caracteristicas de los libros almacenadas en el archivo
     matrizLibros = ObtenerMatrizDesdeArchivo(contenidoArchivo)
 
-    cont = 0
+    # Se recorre toda la matriz por filas ya que cada fila corresponde a un libro ingresado
+    cont = 1
     for fila in matrizLibros:
-        cont += 1
         # Se genera una tupla para obtener cada caracterista de la fila
         (codigo, nombre, categorai, precio, cantidad) = fila
+
+        # Se ingresan los códigos, nombre y cantidad de libros al catálogo de libro que luego el usuario seleccionará para comprar
         catalogoLibros.insert(cont, f"{codigo}:{nombre}:{cantidad}")
+
+        # Se incrementa el contador de elementos para ingresar en el catálogo
+        cont += 1
 
 
 # Esta función permite visualizar las ventas totales realizadas
@@ -104,6 +110,7 @@ def MostrarInterfazComprar():
     contenedorVentasTotales.pack_forget()
     contenedorComprarLibros.pack()
 
+    # Permite actualizar la vista del catálogo para evitar comprar libros que ya no tengan inventario
     ActualizarCatalogoParaCompra()
 
 
@@ -120,7 +127,7 @@ def GuardarDatosLibro():
     # Llamado a la clase que fabricará los libros de ciencias o humanidades de acuerdo a lo ingresado
     fabrica = FabricaLibros()
 
-    # De la interfaz primero se obtiene la categoría del libro
+    # De la interfaz primero se obtiene la categoría del libro a partir de los botones de radio
     if (categoriaLibro.get() == 'LibroCiencias'):
         libro = fabrica.CrearLibro('LibroCiencias')
     elif (categoriaLibro.get() == 'LibroHumanidades'):
@@ -136,7 +143,7 @@ def GuardarDatosLibro():
     matrizLibros = ObtenerMatrizDesdeArchivo(contenidoArchivo)
 
     # Se llama a la función BuscarCodigoMasAlto para encontrar el código siguiente en el ingreso
-    # y evitar repetir
+    # y evitar repetir ya que en la compra se pueden generar errores con códigos repetidos
     codigo = BuscarCodigoMasAlto(matrizLibros)
 
     # Se obtienen los datos de los campos de ingreso y se almacenan en el objeto
@@ -151,13 +158,13 @@ def GuardarDatosLibro():
     # Se llama la función AnadirContenidoAlArchivo para guardar la información en el archivo
     archivo.AnadirContenidoAlArchivo(mensaje)
 
-    # Se limpian los campos en la interfaz
+    # Se limpian los campos en la interfaz para agregar nuevos valores
     ingresoNombre.delete(0, tk.END)
     ingresoPrecio.delete(0, tk.END)
     ingresoCantidad.delete(0, tk.END)
 
 
-# Función para eliminar el archivo cuando se presiona el botón botonBorrarArchivo
+# Función para eliminar el archivo del sistema
 def BorrarArchivo():
     # Definición de variables que son definidas fuera de la función y que son globales
     global archivo
@@ -166,7 +173,7 @@ def BorrarArchivo():
     global contenedorComprarLibros
     global contenedorVentasTotales
 
-    # Se muestra el contenedor respectivo y se oculta el resto
+    # Se ocultan todos los contenedores
     contenedorMostrarLibros.pack_forget()
     contenedorGuardarLibros.pack_forget()
     contenedorComprarLibros.pack_forget()
@@ -176,7 +183,7 @@ def BorrarArchivo():
     archivo.EliminarArchivo()
 
 
-# Función para leer el contenido del archivo cuando se presiona el botón botonLeerArchivo
+# Función para leer el contenido del archivo
 def LeerArchivo():
     # Definición de variables que son definidas fuera de la función y que son globales
     global matrizLibros
@@ -199,19 +206,22 @@ def LeerArchivo():
     # Se limpia el contenido de la matriz donde se almacena el contenido completo de los libros
     matrizLibros.clear()
 
+    # A partir del texto leido desde el archivo se genera la matriz de libros y caracteristicas
     matrizLibros = ObtenerMatrizDesdeArchivo(contenidoArchivo)
 
-    # Se imprime el contenido del archivo de texto en la pantalla como una tabla
+    # Se elimina el contenido inicial del texto donde se imprime la tabla de libros
     textoTablaLibros.delete('1.0', tk.END)
 
-    # Se inserta el encabezado de la tabla en pantalla
+    # Se inserta el encabezado de la tabla en pantalla en el componente de texto
     textoTablaLibros.insert(tk.END, "codigo | nombre | categoria | precio | cantidad |")
     textoTablaLibros.insert(tk.END, "\n")
 
-    # Se recorre la matriz de libros para mostrarla en pantalla
-    cont = 0
+    # Se recorre la matriz de libros para mostrarla en pantalla en el campo de texto
+    # Primero se extraen las filas
     for fila in matrizLibros:
+        # Aqui se recorren las columnas
         for columna in fila:
+            # Se imprime en el campo de texto cada caracteristica separada por |
             textoTablaLibros.insert(tk.END, columna)
             textoTablaLibros.insert(tk.END, " | ")
 
@@ -219,7 +229,7 @@ def LeerArchivo():
         textoTablaLibros.insert(tk.END, "\n")
 
 
-# Función para registrar la compra del libro en la factura de venta
+# Función para registrar la compra del libro
 def ComprarLibro():
     # Definición de variables que son definidas fuera de la función y que son globales
     global matrizLibros
@@ -235,33 +245,37 @@ def ComprarLibro():
     # Se recuperan los libros disponibles de la matriz
     for fila in matrizLibros:
 
-        # Se genera una tupla para obtener cada caracterista de la fila
+        # Se genera una tupla para obtener cada caracterista del libro
         (codigo, nombre, categorai, precio, cantidad) = fila
 
         # Se comprueba primero si el usuario seleccionó un elemento de la lista para evitar errores
         if len(catalogoLibros.curselection()) > 0:
+
+            # Se toma del catálogo presentado en la interfaz la opción para comprar libro
             codigoSelector = catalogoLibros.get(catalogoLibros.curselection())
 
-            # Debido a que se devuelve un texto en la forma 1:quimica, se debe separar el texto y tomar solo el código
+            # Debido a que se devuelve un texto en la forma 1:quimica:2, se debe separar el texto y tomar solo el código
             # y para hacer eso usamos las siguientes instrucciones
-            codigoSelector = codigoSelector.split(":")  # Obtenemos aqui una lista de la forma [1, quimica]
+            codigoSelector = codigoSelector.split(":")  # Obtenemos aqui una lista de la forma [1, quimica, 2]
             codigoSelector = codigoSelector[0]  # Tomamos solo el primer elemento con índice 0
 
-            # Se transforma la variable cantidad a int para comparar si hay libros disponibles
+            # Se transforma la variable cantidad a int para comparar si hay libros disponibles como valores enteros
             cantidadLibros = int(cantidad)
 
-            # Luego se compara si el código coincide con alguno de los libros leidos desde el archivo para calcular
+            # Se compara si el código coincide con alguno de los libros leidos desde el archivo para calcular
             # la factura de venta con y sin impuestos
             if codigo == codigoSelector:
 
                 # Se disminuye en 1 la cantidad de libros disponibles
                 cantidadLibros = cantidadLibros - 1
 
-                # Se calculan los valores de la factura
+                # Se aumenta el valor de pago para la factura para el cliente actual
                 usuarios[claveUsuarioActual] += float(precio)
+
+                # Se calcula el valor con impuestos del 5%
                 valorImpuestos = usuarios[claveUsuarioActual] + ((usuarios[claveUsuarioActual] * 5.0) / 100.0)
 
-                # Se muestran los valores de la factura con y sin impuestos en la interfaz
+                # Se muestran los valores de la factura con y sin impuestos en la interfaz en las etiquetas
                 textoFacturaVenta.config(text="Valor factura: " + str(usuarios.get(claveUsuarioActual)))
                 textoFacturaVentaImpuestos.config(text="Valor factura con impuestos: " + str(valorImpuestos))
 
@@ -270,9 +284,10 @@ def ComprarLibro():
                 if cantidadLibros > 0:
                     # Se actualiza la cantidad de libros para pasarlo a la matriz temporal
                     matrizTemporal.append([codigo, nombre, categorai, precio, cantidadLibros])
-
             else:
                 matrizTemporal.append(fila)
+
+        # Esta opción evita que se genere un error cuando no se seleccionan libros en el catálogo
         else:
             matrizTemporal = matrizLibros.copy()
 
@@ -287,14 +302,14 @@ def ComprarLibro():
     # archivo
     archivo.EliminarArchivo()
 
-    # Se llama la función AnadirContenidoAlArchivo para guardar la información en el archivo
+    # Se llama la función AnadirContenidoAlArchivo para guardar la información en el archivo como texto poniendo cada libro en una nueva linea
     archivo.AnadirContenidoAlArchivo(mensaje)
 
     # Se llama a la función que actualiza el catálogo de compra
     ActualizarCatalogoParaCompra()
 
 
-# Esta función permite realizar una nueva venta poniendo la factura en 0
+# Esta función permite realizar una nueva venta
 def FinalizarVenta():
     # Definición de variables que son definidas fuera de la función y que son globales
     global textoFacturaVenta
@@ -302,7 +317,7 @@ def FinalizarVenta():
     global usuarios
     global claveUsuarioActual
 
-    # Se pasa a otro usuario solo si el valor de venta es > 0.0
+    # Se pasa a otro usuario solo si el valor de venta es > 0.0 y se restauran los valores de las etiquetas a su valor inicial
     if usuarios[claveUsuarioActual] > 0.0:
         claveUsuarioActual += 1
         usuarios[claveUsuarioActual] = 0.0
@@ -314,14 +329,14 @@ def FinalizarVenta():
 
 # Se crea la interfaz gráfica
 
-# Crear una nueva ventana
+# Se crea la ventana principal
 ventana = tk.Tk()
 
 # Se establece el título de la ventana
 ventana.title("Inventario de libros")
 
 # Se establece la geometría de la ventana
-ventana.geometry("670x580+20+20")
+ventana.geometry("670x450+20+20")
 
 # Esta etiqueta define el mensaje del menú
 etiquetaMensajeMenu = tk.Label(ventana, text="Menú de opciones")
@@ -334,7 +349,7 @@ contenedorBotonesMenu = tk.Frame(ventana)
 contenedorBotonesMenu.pack()
 
 # Se generan los elementos en la interfaz con la función GenerarElementosGuardarLibro y se retornan los
-# elementos creados en una tupla para ser usados posteriormente en el programa
+# elementos creados en una tupla para ser usados posteriormente en el programa como variables globales
 (contenedorGuardarLibros, categoriaLibro, botonRadio1, botonRadio2, ingresoNombre, ingresoPrecio, ingresoCantidad,
  botonGuardarArchivo) = GenerarElementosGuardarLibro(ventana)
 
@@ -342,11 +357,11 @@ contenedorBotonesMenu.pack()
 botonGuardarArchivo.config(command=GuardarDatosLibro)
 
 # Se generan los elementos en la interfaz con la función GenerarElementosLeerLibros para el proceso de mostrar el inventario
-#  y se retornan los elementos creados en una tupla para ser usados posteriormente en el programa
+#  y se retornan los elementos creados en una tupla para ser usados posteriormente en el programa como variables globales
 (contenedorMostrarLibros, textoTablaLibros) = GenerarElementosLeerLibros(ventana)
 
 # Se generan los elementos en la interfaz con la función GenerarElementosComprarLibros para el proceso de compra
-#  y se retornan los elementos creados en una tupla para ser usados posteriormente en el programa
+#  y se retornan los elementos creados en una tupla para ser usados posteriormente en el programa como variables globales
 (contenedorComprarLibros, catalogoLibros, textoFacturaVenta, textoFacturaVentaImpuestos, botonComprar,
  botonFinalizarVenta) = GenerarElementosComprarLibros(ventana)
 
@@ -355,7 +370,7 @@ botonComprar.config(command=ComprarLibro)
 botonFinalizarVenta.config(command=FinalizarVenta)
 
 # Se generan los elementos en la interfaz con la función GenerarElementosMostrarVentasTotales para el proceso de compras
-#  y se retornan los elementos creados en una tupla para ser usados posteriormente en el programa
+#  y se retornan los elementos creados en una tupla para ser usados posteriormente en el programa como variables globales
 (contenedorVentasTotales, textoVentasTotales) = GenerarElementosMostrarVentasTotales(ventana)
 
 # Creación de botones para realizar acciones sobre la interfaz
@@ -370,15 +385,10 @@ botonSalir = tk.Button(contenedorBotonesMenu, text="Salir de la Aplicación", co
 
 # Se organizan los botones en la interfaz
 botonMostrarProcesoGuardar.pack()
-
 botonMostrarProcesoLeer.pack()
-
 botonMostrarProcesoComprar.pack()
-
 botonComprasTotales.pack()
-
 botonBorrarArchivo.pack()
-
 botonSalir.pack()
 
 # Se inicia el bucle principal de la interfaz
